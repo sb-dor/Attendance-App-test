@@ -12,12 +12,12 @@ class Authscreen extends GetView<AuthController> {
   Authscreen({super.key});
 
   final Color primary = Color(0xffeeef444c);
-  late SharedPreferences sharedPreferences ;
+  late SharedPreferences sharedPreferences;
+
   @override
   Widget build(BuildContext context) {
     SizeConfig().init(context); // Initialize SizeConfig before using it
-    final bool isKeyboardVisible =
-        KeyboardVisibilityProvider.isKeyboardVisible(context);
+    final bool isKeyboardVisible = KeyboardVisibilityProvider.isKeyboardVisible(context);
     return Scaffold(
       backgroundColor: Colors.white,
       body: Container(
@@ -73,8 +73,7 @@ class Authscreen extends GetView<AuthController> {
                   ),
                   decoration: BoxDecoration(
                     color: Colors.white,
-                    borderRadius:
-                        BorderRadius.circular(SizeConfig.getPercentSize(3)),
+                    borderRadius: BorderRadius.circular(SizeConfig.getPercentSize(3)),
                     boxShadow: [
                       BoxShadow(
                         color: Colors.black26,
@@ -86,12 +85,10 @@ class Authscreen extends GetView<AuthController> {
                   child: Row(
                     children: [
                       Padding(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: SizeConfig.getPercentSize(5)),
+                        padding: EdgeInsets.symmetric(horizontal: SizeConfig.getPercentSize(5)),
                         child: Icon(
                           Icons.person,
-                          color: Color(
-                              0xffeeef444c), // Use any color like your primary color
+                          color: Color(0xffeeef444c), // Use any color like your primary color
                           size: SizeConfig.getPercentSize(6),
                         ),
                       ),
@@ -122,8 +119,7 @@ class Authscreen extends GetView<AuthController> {
                   ),
                   decoration: BoxDecoration(
                     color: Colors.white,
-                    borderRadius:
-                        BorderRadius.circular(SizeConfig.getPercentSize(3)),
+                    borderRadius: BorderRadius.circular(SizeConfig.getPercentSize(3)),
                     boxShadow: [
                       BoxShadow(
                         color: Colors.black26,
@@ -135,12 +131,10 @@ class Authscreen extends GetView<AuthController> {
                   child: Row(
                     children: [
                       Padding(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: SizeConfig.getPercentSize(5)),
+                        padding: EdgeInsets.symmetric(horizontal: SizeConfig.getPercentSize(5)),
                         child: Icon(
-                          Icons.vpn_key_sharp ,
-                          color: Color(
-                              0xffeeef444c), // Use any color like your primary color
+                          Icons.vpn_key_sharp,
+                          color: Color(0xffeeef444c), // Use any color like your primary color
                           size: SizeConfig.getPercentSize(6),
                         ),
                       ),
@@ -149,9 +143,9 @@ class Authscreen extends GetView<AuthController> {
                           return TextFormField(
                             controller: controller.password,
                             obscureText: !controller.isPasswordVisible.value,
-                            
                             decoration: InputDecoration(
-                              contentPadding: EdgeInsets.only(top: SizeConfig.getPercentSize(3.2)),
+                                contentPadding:
+                                    EdgeInsets.only(top: SizeConfig.getPercentSize(3.2)),
                                 hintText: 'Enter your passowrd',
                                 border: InputBorder.none,
                                 suffixIcon: IconButton(
@@ -172,7 +166,7 @@ class Authscreen extends GetView<AuthController> {
                     ],
                   ),
                 ),
-          
+
                 SizedBox(
                   height: SizeConfig.getPercentSize(5),
                 ),
@@ -183,12 +177,11 @@ class Authscreen extends GetView<AuthController> {
                     height: SizeConfig.getPercentSize(15),
                     width: SizeConfig.getPercentSize(80),
                     child: ElevatedButton(
-                      onPressed: () async{
+                      onPressed: () async {
                         FocusScope.of(context).unfocus();
                         String id = controller.employeeId.text.trim();
                         String password = controller.password.text.trim();
-          
-          
+
                         if (id.isEmpty) {
                           Get.showSnackbar(GetSnackBar(
                             message: 'Employee id is still empty!',
@@ -199,38 +192,41 @@ class Authscreen extends GetView<AuthController> {
                             message: 'Password is still empty!',
                             duration: const Duration(seconds: 2),
                           ));
-                        } else {     
-                        //Query that retrive the data based on condtion 
-                        //Which is id(in database) = id(Writern in textfield)
-                        QuerySnapshot snap = await FirebaseFirestore.instance
-                        .collection("Employee").where('id', isEqualTo: id).get();
-                        
-                        try{
-                          if(password == snap.docs[0]['password']){
-                            sharedPreferences = await SharedPreferences.getInstance();
-          
-                            // sharedPreferences.setString('EmployeeId', id).then((_){
-                            // Get.offNamed(Routes.nav);
-                            // });
-                             sharedPreferences.setString('EmployeeId', id);
-                          }else{
+                        } else {
+                          //Query that retrive the data based on condtion
+                          //Which is id(in database) = id(Writern in textfield)
+                          QuerySnapshot snap = await FirebaseFirestore.instance
+                              .collection("Employee")
+                              .where('id', isEqualTo: id)
+                              .get();
+                          debugPrint("is data coming though: $snap");
+                          try {
+                            if (password == snap.docs[0]['password']) {
+                              sharedPreferences = await SharedPreferences.getInstance();
+
+                              // sharedPreferences.setString('EmployeeId', id).then((_){
+                              // Get.offNamed(Routes.nav);
+                              // });
+                              sharedPreferences.setString('EmployeeId', id);
+                            } else {
+                              Get.showSnackbar(GetSnackBar(
+                                message: 'Password is not correct!',
+                                duration: const Duration(seconds: 2),
+                              ));
+                            }
+                          } catch (e) {
+                            RxString error = ''.obs;
+                            if (e.toString() ==
+                                'RangeError (length): Invalid value: Valid value range is empty: 0') {
+                              error.value = 'User does not exist';
+                            } else {
+                              error.value = 'Error Occurred!';
+                            }
                             Get.showSnackbar(GetSnackBar(
-                            message: 'Password is not correct!',
-                            duration: const Duration(seconds: 2),
-                          ));
+                              message: error.value,
+                              duration: const Duration(seconds: 2),
+                            ));
                           }
-                        }catch(e){
-                          RxString error = ''.obs;
-                          if (e.toString() == 'RangeError (length): Invalid value: Valid value range is empty: 0'){
-                            error.value = 'User does not exist';
-                          }else{
-                            error.value = 'Error Occurred!';
-                          }
-                          Get.showSnackbar(GetSnackBar(
-                            message: error.value,
-                            duration: const Duration(seconds: 2),
-                          ));
-                        }
                         }
                       },
                       child: Text(
@@ -249,7 +245,6 @@ class Authscreen extends GetView<AuthController> {
                   ),
                 )
               ]),
-              
             ],
           ),
         ),
@@ -310,12 +305,10 @@ class CustomFieldWidget extends StatelessWidget {
       child: Row(
         children: [
           Padding(
-            padding:
-                EdgeInsets.symmetric(horizontal: SizeConfig.getPercentSize(5)),
+            padding: EdgeInsets.symmetric(horizontal: SizeConfig.getPercentSize(5)),
             child: Icon(
               Icons.person,
-              color:
-                  Color(0xffeeef444c), // Use any color like your primary color
+              color: Color(0xffeeef444c), // Use any color like your primary color
               size: SizeConfig.getPercentSize(6),
             ),
           ),
@@ -323,9 +316,7 @@ class CustomFieldWidget extends StatelessWidget {
             child: Obx(() {
               return TextFormField(
                 controller: textController,
-                obscureText: hasObsecureText
-                    ? !authController.isPasswordVisible.value
-                    : false,
+                obscureText: hasObsecureText ? !authController.isPasswordVisible.value : false,
                 decoration: InputDecoration(
                   hintText: hintText,
                   border: InputBorder.none,
