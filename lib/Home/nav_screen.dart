@@ -1,4 +1,7 @@
 import 'package:attendanceapp/Home/home_controller.dart';
+import 'package:attendanceapp/Home/pages/calendar_screen.dart';
+import 'package:attendanceapp/Home/pages/profile_screen.dart';
+import 'package:attendanceapp/Home/pages/today_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_state_manager/src/simple/get_view.dart';
@@ -13,11 +16,22 @@ class NavScreen extends GetView<HomeController> {
     SizeConfig().init(context); // Initialize SizeConfig before using it
     final Color primary = Color(0xffeeef444c);
 
-    return Scaffold(
-      body: Center(
-        child: Text('Home'),
-      ),
-      bottomNavigationBar: Container(
+    return GetBuilder<HomeController>(
+      builder: (controller){
+        return Scaffold(
+      body: SafeArea(
+        child: IndexedStack(
+          index: controller.currentIndex.value,
+          children: [
+            CalendarScreen(),
+            TodayScreen(),
+            ProfileScreen(),
+          ],
+        )
+        ),
+      bottomNavigationBar: 
+      
+      Container(
         height: SizeConfig.getPercentSize(18),
         margin: EdgeInsets.only(
           left: 12,
@@ -42,15 +56,17 @@ class NavScreen extends GetView<HomeController> {
                 child: Center(
                   child: GestureDetector(onTap: () {
                     controller.onIconTapped(i);
-                  }, child: Obx(() {
-                    return Icon(
+                  }, child: 
+                    Icon(
                       controller.navigationIcons[i],
-                      size: SizeConfig.getPercentSize(10),
+                      size: controller.currentIndex.value == i
+                          ? SizeConfig.getPercentSize(10) 
+                          : SizeConfig.getPercentSize(8),
                       color: controller.currentIndex.value == i
                           ? primary
                           : Colors.grey,
-                    );
-                  })),
+                    ),
+                  ),
                 ),
               ),
             }
@@ -59,4 +75,7 @@ class NavScreen extends GetView<HomeController> {
       ),
     );
   }
+     );
+      }
+    
 }
